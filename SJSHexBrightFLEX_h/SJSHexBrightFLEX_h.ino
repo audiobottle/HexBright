@@ -1,27 +1,14 @@
-/* 
- My version of HexBrightFLEX based on hexbright_bjh
- v1.3.2 (change the 'Powered Up! text below to match)
- __________________________________________________
- 
- See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
- README.md
- __________________________________________________
- TO DO:
- Short term
- .Flash red LED when within 10 or so of OVERTEMP and
- flashes 2x within 5
- 
- Long Term
- .Calc temp from wire
- .change dazzle mode to pressing button and shaking light.
- and enter SOS after holding for 5 sec
- .beacon mode and 'stabbing motion' down
- .momentary press - enter with ?
- .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
- __________________________________________________
- See the sund/HexBright/README.md for info on sources.
- 
- */
+/*
+
+
+___________________PULED FROM_______________________
+
+Main code from sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
+
+btnReleaseTime timout added by David Blume, Jan 31, 2013
+
+___________________THANKS!!!!_______________________
+*/
 
 #include <Wire.h>
 #include <hexbright.h>
@@ -53,6 +40,7 @@ const unsigned long ActTimeOut = 600;
 
 // State; initialize
 byte mode = 0;
+unsigned long btnReleaseTime = 0;
 unsigned long btnTime = 0;
 boolean btnDown = false;
 boolean dazzle_on = true;
@@ -74,7 +62,7 @@ void setup()
   btnDown = hb.button_pressed();
   mode = MODE_OFF;
 
-  Serial.println("Powered up! v1.3.2");
+  Serial.println("Powered up! v1");
   randomSeed(analogRead(1));
 }
 
@@ -166,7 +154,6 @@ void loop()
 
   // Periodically pull down the button's pin, since
   // in certain hardware revisions it can float.
-  // Do we have to do this on the shipping version of hexbright?
   pinMode(DPIN_RLED_SW, OUTPUT);
   pinMode(DPIN_RLED_SW, INPUT);
 
@@ -183,13 +170,13 @@ void loop()
     break;
   case MODE_LOW:
     if (btnDown && !newBtnDown && (time-btnTime)>50)
-      if (time-lastModeTime > 1000)
+      if (time-btnReleaseTime > 1500) //release since last button push
         newMode = MODE_OFF;
       else newMode = MODE_MED;
     break;
   case MODE_MED:
     if (btnDown && !newBtnDown && (time-btnTime)>50)
-      if (time-lastModeTime > 1000)
+      if (time-btnReleaseTime > 1000)	//Less time needed here
         newMode = MODE_OFF;
       else newMode = MODE_HIGH;
     break;
@@ -283,6 +270,9 @@ void loop()
   // Remember button state so we can detect transitions
   if (newBtnDown != btnDown)
   {
+    if (!newBtnDown) {
+      btnReleaseTime = time;	//to btnReleaseTime
+    }
     btnTime = time;
     btnDown = newBtnDown;
     delay(50);
@@ -327,5 +317,4 @@ bool morseCodeSOS(unsigned long time){
   Serial.println("Morse SOS overrun error");  
   return false;
 }
-
 
