@@ -17,6 +17,8 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 - Cherry pick SOS from https://github.com/jaebird/samples.git.
 - Added SOS to dazzle mode. To get there press and hold pwr button to get dazzle, then 2 second long press again for SOS
 
+btnReleaseTime timout added by David Blume
+
 ---
 UPDATE LOG:
 1-17-13
